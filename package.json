@@ -1,0 +1,25 @@
+{
+  "name": "repositoriodesafiolatam",
+  "version": "1.0.0",
+  "description": "Integrantes: - Eduardo Hernández - Nicolás Chávez",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NicoDizel/desafio-sistema-tareas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NicoDizel/desafio-sistema-tareas/issues"
+  },
+  "homepage": "https://github.com/NicoDizel/desafio-sistema-tareas#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9"
+  }
+}
