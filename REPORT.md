@@ -1,7 +1,7 @@
 
-# Implementación de un Pipeline de Integración Continua
+# Desafío Sistema de Gestión de Tareas
 
-> **Objetivo**: Comprender paso a paso cómo implementar un pipeline de integración continua usando Git, Node.js, Jest, Docker y Jenkins.
+> **Objetivo**: Comprender paso a paso cómo implementar un pipeline de integración continua usando Git, Node.js, Jest, Docker y Jenkins para un sistema de gestión de tareas.
 
 ---
 
@@ -10,13 +10,13 @@
 Tu proyecto debe tener una estructura ordenada como esta:
 
 ```
-js-project/
-├── app.js             # Código principal de la aplicación
-├── app.test.js        # Pruebas unitarias con Jest
-├── db.json            # Base de datos simulada (json-server)
+desafio-sistema-tareas/
+├── src            
+  ├── app.js             # Código principal de la aplicación
+├── tests            
+  ├── app.test.js        # Pruebas unitarias con Jest
 ├── Dockerfile         # Imagen de Docker para levantar el proyecto
-├── package.json       # Dependencias y scripts de Node.js
-└── Jenkinsfile        # Define el pipeline de CI para Jenkins
+└── package.json       # Dependencias y scripts de Node.js
 ```
 
 ---
@@ -29,21 +29,36 @@ Este archivo define las dependencias y scripts del proyecto. Asegúrate de inclu
 
 ```json
 {
-  "name": "js-project",
+  "name": "repositoriodesafiolatam",
   "version": "1.0.0",
-  "description": "Proyecto de integración continua con Node.js",
+  "description": "Integrantes: - Eduardo Hernández - Nicolás Chávez",
   "main": "app.js",
   "scripts": {
-    "start": "json-server --watch db.json --port 3000",
-    "test": "jest --coverage"
+    "test": "jest --forceExit --silent=false --coverage",
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NicoDizel/desafio-sistema-tareas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NicoDizel/desafio-sistema-tareas/issues"
+  },
+  "homepage": "https://github.com/NicoDizel/desafio-sistema-tareas#readme",
   "dependencies": {
-    "json-server": "^0.17.3"
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9"
   },
   "devDependencies": {
-    "jest": "^29.0.0"
+    "jest": "^29.4.1",
+    "supertest": "^6.3.3"
   }
 }
+
 ```
 
 ### Instalación
@@ -56,36 +71,53 @@ npm install
 
 ## 🧪 3. Código fuente y pruebas
 
-### `app.js`
+### `src/app.js`
 
 ```js
-// app.js - Funciones simples para demostrar pruebas unitarias
+// app.js - Endpoints para el sistema de gestión de tareas
 
-function suma(a, b) {
-  return a + b;
-}
+app.get('/', (req, res) => {
+    res.send('Welcome to the task manager API');
+});
 
-function resta(a, b) {
-  return a - b;
-}
+app.get('/tasks', (req, res) => {
+    res.status(200).json(tasks);
+});
 
-module.exports = { suma, resta };
+app.get('/tasks/:id', (req, res) => {
+    const task = tasks.find(t => t.id === parseInt(req.params.id));
+    if (!task) return res.status(404).send('Task not found');
+    res.status(200).json(task);
+});
 ```
 
-### `app.test.js`
+### `test/app.test.js`
 
 ```js
-// app.test.js - Pruebas unitarias con Jest
+// tests/app.test.js - Pruebas unitarias con Jest
 
-const { suma, resta } = require('./app');
+const request = require('supertest');
+const app = require('../src/app.js');
 
-test('suma correcta', () => {
-  expect(suma(2, 3)).toBe(5);
+describe('API Tests', () => {
+  it('should return a 200 status code', async () => {
+    const res = await request(app).get('/');
+    expect(res.statusCode).toEqual(200);
+  });
+
+  it('should return a list of users', async () => {
+    const res = await request(app).get('/tasks');
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveLength(2);
+  });
+
+  it('should return a single user', async () => {
+    const res = await request(app).get('/tasks/1');
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.name).toEqual('Task 1');
+  });
 });
 
-test('resta correcta', () => {
-  expect(resta(5, 2)).toBe(3);
-});
 ```
 
 ---
@@ -93,94 +125,37 @@ test('resta correcta', () => {
 ## 🐳 4. Dockerfile
 
 ```dockerfile
-# Usa una imagen oficial de Node.js
-FROM node:18
+# Use the official Node.js image
+FROM node:16
 
-# Establece el directorio de trabajo
-WORKDIR /usr/src/app
+# Set the working directory
+WORKDIR /usr/src
 
-# Copia los archivos del proyecto
-COPY . .
-
-# Instala las dependencias
+# Copy package.json and install dependencies
+COPY package.json ./
 RUN npm install
 
-# Expone el puerto 3000
+# Copy application code
+COPY . .
+
+# Expose port 3000
 EXPOSE 3000
 
-# Comando para ejecutar la aplicación
-CMD ["npm", "start"]
+# Run the application
+CMD ["npm", "run", "start"]
 ```
 
 ---
 
-## 🧪 5. Jenkinsfile
-
-Este archivo define las etapas de integración continua.
-
-```groovy
-pipeline {
-  agent any
-
-  stages {
-    stage('Instalar dependencias') {
-      steps {
-        sh 'npm install'
-      }
-    }
-
-    stage('Test y cobertura') {
-      steps {
-        sh 'npm test -- --coverage'
-      }
-    }
-
-    stage('Docker Build & Run') {
-      steps {
-        sh 'docker build -t js-app .'
-        sh 'docker run -d -p 8083:3000 js-app'
-      }
-    }
-  }
-}
-```
-
----
-
-## 📁 6. Reporte de cobertura
+## 📁 5. Reporte de cobertura
 
 Jest genera un reporte HTML en `coverage/lcov-report/index.html`. Puedes abrir este archivo en un navegador para visualizar la cobertura de pruebas.
 
 ---
 
-## 🧪 7. Jenkins: Configuración del Job
+## 🧪 6. Jenkins: Configuración del Job
 
 1. Crear un nuevo pipeline en Jenkins.
-2. Fuente del repositorio: `file:///ruta/al/proyecto/js-project`
-3. Jenkins buscará el `Jenkinsfile` y ejecutará las etapas automáticamente.
+2. Fuente del repositorio: `https://github.com/NicoDizel/desafio-sistema-tareas.git`
 
 ---
-
-## 📝 Consejos Finales
-
-- Siempre confirma que tus pruebas pasen antes de subir al repositorio.
-- Asegúrate de que el puerto `3000` no esté ocupado si estás usando Docker.
-- Puedes detener el contenedor con:  
-  ```bash
-  docker ps          # para ver el ID del contenedor  
-  docker stop <ID>   # para detenerlo
-  ```
-
----
-
-## 📚 Recursos Extra
-
-| Tema | Recurso |
-|------|---------|
-| Docker básico | https://docker-curriculum.com |
-| Jest (Testing) | https://jestjs.io/docs/getting-started |
-| Jenkins (CI/CD) | https://www.jenkins.io/doc/ |
-
----
-
-Con esta guía podrás implementar paso a paso un pipeline de integración continua en un proyecto Node.js. ¡A seguir aprendiendo! 🚀
