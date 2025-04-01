@@ -4,8 +4,9 @@
   "description": "Integrantes: - Eduardo Hernández - Nicolás Chávez",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/app/app.js"
+    "test": "jest --silent=false --coverage",
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js"
   },
   "repository": {
     "type": "git",
@@ -21,5 +22,9 @@
   "dependencies": {
     "express": "^4.21.2",
     "nodemon": "^3.1.9"
+  },
+  "devDependencies": {
+    "jest": "^29.4.1",
+    "supertest": "^6.3.3"
   }
 }

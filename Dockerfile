@@ -2,7 +2,7 @@
 FROM node:16
 
 # Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /usr/src
 
 # Copy package.json and install dependencies
 COPY package.json ./
@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the application
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]
